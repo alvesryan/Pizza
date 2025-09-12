@@ -1,0 +1,19 @@
+{
+  "name": "teste-final",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/prompt-sync": "^4.2.3",
+    "typescript": "^5.5.2"
+  }
+}
