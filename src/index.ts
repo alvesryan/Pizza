@@ -15,6 +15,145 @@ let clientes: Cliente[] = [] // Array para armazenar clientes
 let produtos: Produto[] = [] // Array para armazenar produtos
 let pedidos: Pedido[] = []   // Array para armazenar os pedidos
 
+//Esse blodo de código é o responsavel pelo armazenamento dos dadosd.
+
+// definição dos caminhos dos arquivos csv.
+const DATA_DIR = path.resolve(__dirname, '..', 'data'); //código de organização das pastas.
+const CLIENTES_CSV = path.join(DATA_DIR, 'clientes.csv');
+const PRODUTOS_CSV = path.join(DATA_DIR, 'produtos.csv');
+const PEDIDOS_CSV = path.join(DATA_DIR, 'pedidos.csv');
+const ITENS_PEDIDO_CSV = path.join(DATA_DIR, 'itens_pedido.csv');
+
+
+// Salva todos os dados dos arrays em memória para os arquivos CSV.
+
+function salvarDados(): void {
+
+    //um if else, pra saber se o diretório existe.
+    if (!fs.existsSync(DATA_DIR)) { // se o diretório "DATA_DIR" não existir
+        fs.mkdirSync(DATA_DIR); // ele será criado
+    }
+
+    // 1. Salvar Clientes
+    const cabecalhoArquivoDoCliente = 'id,nome,contato\n';
+    const corpoArquivoCliente = clientes.map(cliente => `${cliente.id},${cliente.nome},${cliente.contato}`).join('\n');
+    fs.writeFileSync(CLIENTES_CSV, cabecalhoArquivoDoCliente + corpoArquivoCliente);
+
+    // 2. Salvar Produtos
+    const cabecalhoArquivoDoProduto = 'id,nome,preco\n';
+    const corpoArquivoProdutos = produtos.map(p => `${p.id},${p.nome},${p.preco}`).join('\n');
+    fs.writeFileSync(PRODUTOS_CSV, cabecalhoArquivoDoProduto + corpoArquivoProdutos);
+
+    // 3. Salvar Pedidos (com referência ao ID do cliente)
+    const cabecalhoPedido = 'id,cliente_id,total,formaPagamento\n';
+    const corpoPedido = pedidos.map(p => `${p.id},${p.cliente.id},${p.total},${p.formaPagamento}`).join('\n');
+    fs.writeFileSync(PEDIDOS_CSV, cabecalhoPedido + corpoPedido);
+
+    // 4. Salvar Itens do Pedido (relacionando pedido e produto)
+    const cabecalhoItens = 'pedido_id,produto_id,quantidade\n';
+    const corpoItens: string[] = [];
+    pedidos.forEach(pedido => {
+        pedido.itens.forEach(item => {
+            corpoItens.push(`${pedido.id},${item.produto.id},${item.quantidade}`);
+        });
+    });
+    fs.writeFileSync(ITENS_PEDIDO_CSV, cabecalhoItens + corpoItens.join('\n'));
+
+    console.log('Dados salvos com sucesso!');
+}
+
+// Esta função carrega todos os dados dos arquivos CSV para os arrays em memória (clientes, produtos, pedidos).
+function carregarDados(): void {
+    console.log('Carregando dados dos arquivos CSV...');
+    
+    // O Programa verifica se o arquivo de cliente existe antes de tentar executar ele.
+    if (fs.existsSync(CLIENTES_CSV)) {
+        const data = fs.readFileSync(CLIENTES_CSV, 'utf-8'); // Lê todo o conteúdo do arquivo CSV como um único texto.
+        const lines = data.split('\n').slice(1);// Quebra o texto em um array de linhas, usando a quebra de linha ('\n') como separador.
+        // .slice(1) remove o primeiro item do array (a linha do cabeçalho 'id,nome,contato').
+        
+        // Agora, processamos cada linha para transformá-la de volta em um objeto Cliente.
+        clientes = lines
+            .filter(line => line) // .filter(line => line) remove qualquer linha em branco que possa existir no final do arquivo.
+            .map(line => { // .map() transforma cada item do array. Neste caso, cada 'linha' de texto vira um 'objeto'.
+                // Quebra a linha '1,Ana Silva,119...' em um array ['1', 'Ana Silva', '119...'] usando a vírgula.
+                const [id, nome, contato] = line.split(',');  // Transforma a linha '1,Ana Silva,119' em um array ['1', 'Ana Silva', '119'] usando a vírgula.
+                return { id: parseInt(id), nome, contato: parseInt(contato) };  // Retorna o objeto Cliente formatado, convertendo os IDs e contatos de texto para número.
+            });
+    }
+
+    // O processo para carregar produtos é idêntico ao de clientes.
+    if (fs.existsSync(PRODUTOS_CSV)) {
+        const data = fs.readFileSync(PRODUTOS_CSV, 'utf-8');
+        const lines = data.split('\n').slice(1);
+        produtos = lines
+            .filter(line => line)
+            .map(line => {
+                const [id, nome, preco] = line.split(',');
+                // A única diferença é usar parseFloat para o preço, pois ele pode ter casas decimais.
+                return { id: parseInt(id), nome, preco: parseFloat(preco) };
+            });
+    }
+
+    // --- Etapa 3: Reconstruir o Quebra-Cabeça (Pedidos e Itens) ---
+    // checagem pra ver se os arquivos exitem
+    if (fs.existsSync(PEDIDOS_CSV) && fs.existsSync(ITENS_PEDIDO_CSV)) {
+        
+        // 3a. Primeiro, carregamos TODOS os itens de TODOS os pedidos para um array temporário.
+        const itensData = fs.readFileSync(ITENS_PEDIDO_CSV, 'utf-8'); // o arquivo está sendo lido pelo método.
+        const todosItens = itensData.split('\n').slice(1).filter(line => line).map(line => { // e aqui processado
+            // .split, divide toda a array em linhas.
+            const [pedido_id, produto_id, quantidade] = line.split(',');
+            // os IDs só seram guardados até aqui.
+            return {
+                pedido_id: parseInt(pedido_id),
+                produto_id: parseInt(produto_id),
+                quantidade: parseInt(quantidade)
+            };
+        });
+
+        // 3b. Agora, carregamos os pedidos e usamos os dados que já temos para remontá-los.
+        const pedidosData = fs.readFileSync(PEDIDOS_CSV, 'utf-8'); // lê o arquivo.
+        pedidos = pedidosData.split('\n').slice(1).filter(line => line).map(line => {
+            const [id, cliente_id, total, formaPagamento] = line.split(',');
+            
+            // --- INÍCIO DA RECONSTRUÇÃO ---
+
+            // Para cada linha de pedido, usamos o 'cliente_id' para encontrar o OBJETO Cliente completo no array 'clientes'.
+            const clienteDoPedido = clientes.find(cliente => cliente.id === parseInt(cliente_id));
+            if (!clienteDoPedido) return null; // se o cliente não for encontrado (foi deletado), pulamos este pedido para evitar erro.
+
+            // Agora, para o pedido atual, filtramos a lista 'todosItens' para pegar apenas os itens que pertencem a ele.
+            const itensDestePedido = todosItens
+                .filter(item => item.pedido_id === parseInt(id))
+                // Com a lista de itens correta, fazemos um '.map()' para transformar cada item.
+                .map(itemInfo => {
+                    // Para cada item, usamos o 'produto_id' para encontrar o OBJETO Produto completo no array 'produtos'.
+                    const produtoDoItem = produtos.find(p => p.id === itemInfo.produto_id);
+                    // Medida de segurança: se o produto não for encontrado, pulamos este item.
+                    if (!produtoDoItem) return null;
+                    // Retornamos o objeto no formato correto de 'ItemPedido', com o objeto Produto inteiro.
+                    return { produto: produtoDoItem, quantidade: itemInfo.quantidade };
+                })
+                // No final, filtramos novamente para remover quaisquer itens que possam ter se tornado 'null'.
+                .filter((item): item is ItemPedido => item !== null);
+
+
+            // Finalmente, retornamos o objeto Pedido completo, com todas as suas referências restauradas.
+            return {
+                id: parseInt(id),
+                cliente: clienteDoPedido, // Aqui entra o objeto Cliente completo.
+                total: parseFloat(total),
+                formaPagamento,
+                itens: itensDestePedido // E aqui entra o array de objetos ItemPedido completos.
+            };
+        // No final, filtramos uma última vez para remover quaisquer pedidos que possam ter se tornado 'null'.
+        }).filter((pedido): pedido is Pedido => pedido !== null);
+    }
+    
+    console.log('Dados carregados. Sistema pronto.');
+}
+
 
 interface Cliente{ //Objetp Cliente
     id: number; // esse é o id que vai ser direcionado ao cliente.
