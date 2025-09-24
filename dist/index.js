@@ -36,9 +36,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var readline = require("readline");
-var fs = require("fs");
-var path = require("path");
+var readline = require("readline"); // Essa linha permite que o usuário interaja com o programa. podendo digitar na tela.
+var fs = require("fs"); // essa linha é responsável por ler, escrever e criar pasts.
+var path = require("path"); // essa linha ajuda no trabalho com o caminho dos arquivos.
 var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout

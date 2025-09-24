@@ -1,6 +1,6 @@
-import * as readline from 'readline';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as readline from 'readline';// Essa linha permite que o usuário interaja com o programa. podendo digitar na tela.
+import * as fs from 'fs'; // essa linha é responsável por ler, escrever e criar pasts.
+import * as path from 'path'; // essa linha ajuda no trabalho com o caminho dos arquivos.
 
 const rl = readline.createInterface({
     input: process.stdin,
