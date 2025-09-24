@@ -139,4 +139,8 @@ Agora, basta rodar:
     Contato: number.
     Forma de Pagamento: string (ex: "Pix", "Dinheiro", "Crédito", "Débito").
 
+*Aqui um exemplo da estrutura das pastas*
 ![Estrutura de pastas](./image/arquiteturaPastas.png)
+
+*Diagrama do código*
+![Estrutura de pastas](./image/diagrama.png)
