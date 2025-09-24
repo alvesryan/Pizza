@@ -1,13 +1,16 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",                
-    "module": "commonjs",             
-    "outDir": "./dist",               
-    "rootDir": "./src",               
-    "strict": true,                   
-    "esModuleInterop": true,          
-    "skipLibCheck": true,             
-    "forceConsistentCasingInFileNames": true
+  "name": "sistemapizzaria",
+  "version": "1.0.0",
+  "description": "Sistema de gestão para pizzaria via terminal",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
-  "include": ["src/**/*"] 
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.5.2"
+  }
 }
