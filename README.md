@@ -139,4 +139,4 @@ Agora, basta rodar:
     Contato: number.
     Forma de Pagamento: string (ex: "Pix", "Dinheiro", "Crédito", "Débito").
 
-![Estrutura de pastas](C:\Users\Grupo Vesper\OneDrive\Desktop\SistemaPizzaria\image\arquiteturaPastas.png)
+![Estrutura de pastas](./image/arquiteturaPastas.png)
