@@ -51,14 +51,14 @@ Criação automática de pastas e arquivos de dados na primeira execução.
     Git
     
     🚀 Instalação e Configuração
-    Na raiz do projeto (onde está o package.json), siga os passos:
+    Na raiz do projeto, siga os passos:
 
 
 
 Clone o repositório:
 
-    git clone [https://github.com/alvesryan/Pizza.git](https://github.com/alvesryan/Pizza.git)
-    cd Pizza
+    1° - git clone [[https://github.com/alvesryan/Pizza.git](https://github.com/alvesryan/Pizza.git)](https://github.com/alvesryan/Pizza) (clone a URL desta página)
+    2° - cd Pizza
 
 
 Instale as dependências:    
@@ -66,7 +66,7 @@ Instale as dependências:
     npm install
 
 
-Confira os scripts no package.json:
+Confira os scripts no package.json (cheque se está dessa forma): 
 
     {
       "scripts": {
