@@ -1,5 +1,5 @@
 "use strict";
-// src/index.ts
+// src/index.ts 
 // Este arquivo importa as funções dos outros arquivos e executa o menu.
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -39,13 +39,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Importa a lógica de CLI
-var cli_1 = require("../src/utils/cli");
+var cli_1 = require("./utils/cli");
 // Importa a lógica de armazenamento
-var storage_service_1 = require("../src/services/storage.service");
+var storage_service_1 = require("./services/storage.service");
 // Importa os módulos de cada entidade
-var cliente_1 = require("../src/modules/cliente");
-var produto_1 = require("../src/modules/produto");
-var pedido_1 = require("../src/modules/pedido");
+var cliente_1 = require("./modules/cliente");
+var produto_1 = require("./modules/produto");
+var pedido_1 = require("./modules/pedido");
+var relatorios_1 = require("./modules/relatorios");
 //-MENU PRINCIPAL-
 function menu() {
     return __awaiter(this, void 0, void 0, function () {
@@ -56,7 +57,7 @@ function menu() {
                     sair = false;
                     _b.label = 1;
                 case 1:
-                    if (!!sair) return [3 /*break*/, 17];
+                    if (!!sair) return [3 /*break*/, 19];
                     // enquando sair NÂO for false, o while é executado
                     console.clear();
                     console.log("===== PIZZARIA  ====="); // e nesse while, é onde o usuário vai fazer todos os cadastros, as buscas, e pedido dos clientes
@@ -65,7 +66,8 @@ function menu() {
                     console.log("3. Cadastrar produto");
                     console.log("4. Listar produtos");
                     console.log("5. Realizar um pedido");
-                    console.log("6. Sair");
+                    console.log("6. Ver relatórios");
+                    console.log("7. Sair");
                     console.log("======================================");
                     return [4 /*yield*/, (0, cli_1.askQuestion)("Digite o número referente ao seu desejo: ")];
                 case 2:
@@ -78,41 +80,46 @@ function menu() {
                         case "4": return [3 /*break*/, 9];
                         case "5": return [3 /*break*/, 11];
                         case "6": return [3 /*break*/, 13];
+                        case "7": return [3 /*break*/, 15];
                     }
-                    return [3 /*break*/, 14];
+                    return [3 /*break*/, 16];
                 case 3: return [4 /*yield*/, (0, cliente_1.cadastrodeClientes)()];
                 case 4:
                     _b.sent();
-                    return [3 /*break*/, 16]; // quando o valor digitado no prompt acima pertencer a algum case, o respectivo case...
+                    return [3 /*break*/, 18]; // quando o valor digitado no prompt acima pertencer a algum case, o respectivo case...
                 case 5: return [4 /*yield*/, (0, cliente_1.buscarClientes)()];
                 case 6:
                     _b.sent(); // chamará a função que está linkada nele
-                    return [3 /*break*/, 16];
+                    return [3 /*break*/, 18];
                 case 7: return [4 /*yield*/, (0, produto_1.cadastrodeProduto)()];
                 case 8:
                     _b.sent();
-                    return [3 /*break*/, 16];
+                    return [3 /*break*/, 18];
                 case 9: return [4 /*yield*/, (0, produto_1.buscarProdutos)()];
                 case 10:
                     _b.sent();
-                    return [3 /*break*/, 16];
+                    return [3 /*break*/, 18];
                 case 11: return [4 /*yield*/, (0, pedido_1.realizarPedido)()];
                 case 12:
                     _b.sent();
-                    return [3 /*break*/, 16];
-                case 13:
+                    return [3 /*break*/, 18];
+                case 13: return [4 /*yield*/, (0, relatorios_1.mostrarRelatorios)()];
+                case 14:
+                    _b.sent();
+                    return [3 /*break*/, 18];
+                case 15:
                     (0, storage_service_1.salvarDados)(); // quando o usuário quiser sair, todos os dados serão salvos.
                     console.log("Até logo!!");
                     sair = true; // sair vira true e o programa é finalizado.
-                    return [3 /*break*/, 16];
-                case 14:
+                    return [3 /*break*/, 18];
+                case 16:
                     console.log("Opção inválida!");
                     return [4 /*yield*/, (0, cli_1.askQuestion)("Pressione Enter para continuar...")];
-                case 15:
-                    _b.sent();
-                    return [3 /*break*/, 16];
-                case 16: return [3 /*break*/, 1];
                 case 17:
+                    _b.sent();
+                    return [3 /*break*/, 18];
+                case 18: return [3 /*break*/, 1];
+                case 19:
                     cli_1.rl.close();
                     return [2 /*return*/];
             }

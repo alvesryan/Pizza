@@ -37,10 +37,10 @@ function salvarDados() {
         .join("\n");
     fs.writeFileSync(PRODUTOS_CSV, cabecalhoArquivoDoProduto + corpoArquivoProdutos); // 3. Salvar Pedidos (com referência ao ID do cliente)
     // Esse bloco de código funciona da mesma maneira que o anterior
-    var cabecalhoPedido = "id,cliente_id,total,formaPagamento\n";
+    var cabecalhoPedido = "id,cliente_id,total,formaPagamento,dataCriacao\n";
     var corpoPedido = exports.pedidos
         .map(function (pedidos) {
-        return "".concat(pedidos.id, ",").concat(pedidos.cliente.id, ",").concat(pedidos.total, ",").concat(pedidos.formaPagamento);
+        return "".concat(pedidos.id, ",").concat(pedidos.cliente.id, ",").concat(pedidos.total, ",").concat(pedidos.formaPagamento, ",").concat(pedidos.dataCriacao.toISOString());
     })
         .join("\n");
     fs.writeFileSync(PEDIDOS_CSV, cabecalhoPedido + corpoPedido); // 4. Salvar Itens do Pedido (relacionando pedido e produto)
@@ -112,7 +112,7 @@ function carregarDados() {
             .slice(1)
             .filter(function (line) { return line; })
             .map(function (line) {
-            var _a = line.split(","), id = _a[0], cliente_id = _a[1], total = _a[2], formaPagamento = _a[3]; // essas serão as informações que aparecerão no arquivo de pedidos // --- INÍCIO DA RECONSTRUÇÃO --- // Para cada linha de pedido, usamos o 'cliente_id' para encontrar o OBJETO Cliente completo no array 'clientes'.
+            var _a = line.split(","), id = _a[0], cliente_id = _a[1], total = _a[2], formaPagamento = _a[3], dataCriacaoStr = _a[4]; // essas serão as informações que aparecerão no arquivo de pedidos // --- INÍCIO DA RECONSTRUÇÃO --- // Para cada linha de pedido, usamos o 'cliente_id' para encontrar o OBJETO Cliente completo no array 'clientes'.
             var clienteDoPedido = exports.clientes.find(function (cliente) { return cliente.id === parseInt(cliente_id); });
             if (!clienteDoPedido)
                 return null; // se o cliente não for encontrado (foi deletado), pulamos este pedido para evitar erro. // Agora, para o pedido atual, filtramos a lista pegando apenas os itens cujo pedido_id é igual ao id do pedido atual.

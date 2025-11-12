@@ -40,10 +40,12 @@ exports.realizarPedido = realizarPedido;
 // src/modules/pedido.module.ts
 var cli_1 = require("../src/utils/cli");
 var storage_service_1 = require("../src/services/storage.service");
+var fs = require("fs");
+var path = require("path");
 //-Pedido
 function realizarPedido() {
     return __awaiter(this, void 0, void 0, function () {
-        var itensPedidos, i, clienteBuscado, idClienteStr, idCliente, clienteEncontrado, i, adicionandoItens, i, produtoDisponivel, idProdutoStr, idProduto, produtoEncontrado, i, quantidadeStr, quantidade, respostaUsuario, totalDoPedido, i, itemAtual, subtotalItem, metodoPagamento, escolhaPagamento, novoPedidoId, pedido;
+        var itensPedidos, i, clienteBuscado, idClienteStr, idCliente, clienteEncontrado, i, adicionandoItens, i, produtoDisponivel, idProdutoStr, idProduto, produtoEncontrado, i, quantidadeStr, quantidade, respostaUsuario, totalDoPedido, i, itemAtual, subtotalItem, metodoPagamento, escolhaPagamento, novoPedidoId, pedido, conteudoNota, NOTAS_DIR, nomeArquivo, caminhoArquivo;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -188,14 +190,41 @@ function realizarPedido() {
                         itens: itensPedidos, // todos os itens do pedido
                         total: totalDoPedido, // e o valor total
                         formaPagamento: metodoPagamento, // e a forma de pagamento
+                        dataCriacao: new Date(), // e a data de criação do pedido
                     };
                     storage_service_1.pedidos.push(pedido); // como nos outros .push, a variável pedido, leva seu valor para o array Pedido[]
-                    //Nota Fiscal.
-                    console.log("---------------------------------");
-                    console.log("N\u00DAMERO DO PEDIDO: ".concat(pedido.id));
-                    console.log("TOTAL DO PEDIDO: R$ ".concat(pedido.total.toFixed(2))); //toFixed(2) faz com que o preço tenha fixadamente 2 casas decimais.
-                    console.log("FORMA DE PAGAMENTO: ".concat(pedido.formaPagamento));
-                    console.log("\nPedido realizado com sucesso!");
+                    conteudoNota = "\n---------------------------------\n        PIZZARIA - NOTA FISCAL\n---------------------------------\n\nN\u00DAMERO DO PEDIDO: ".concat(pedido.id, "\nCLIENTE: ").concat(pedido.cliente.nome, "\n\nITENS:\n").concat(pedido.itens
+                        .map(function (item) {
+                        return "  - ".concat(item.produto.nome, " (x").concat(item.quantidade, "): R$ ").concat((item.produto.preco * item.quantidade).toFixed(2));
+                    })
+                        .join("\n"), "\n\n---------------------------------\nTOTAL DO PEDIDO: R$ ").concat(pedido.total.toFixed(2), "\nFORMA DE PAGAMENTO: ").concat(pedido.formaPagamento, "\n---------------------------------\n  ");
+                    NOTAS_DIR = path.resolve(__dirname, "..", "..", "notas_fiscais");
+                    if (!fs.existsSync(NOTAS_DIR)) {
+                        fs.mkdirSync(NOTAS_DIR, { recursive: true });
+                    }
+                    nomeArquivo = "pedido_".concat(pedido.id, ".txt");
+                    caminhoArquivo = path.join(NOTAS_DIR, nomeArquivo);
+                    try {
+                        // Salva o arquivo de forma síncrona
+                        fs.writeFileSync(caminhoArquivo, conteudoNota.trim());
+                        // --- 4. Exibe a nota no console (como antes) e informa sobre o .txt ---
+                        console.log("---------------------------------");
+                        console.log("N\u00DAMERO DO PEDIDO: ".concat(pedido.id));
+                        console.log("TOTAL DO PEDIDO: R$ ".concat(pedido.total.toFixed(2))); //toFixed(2) faz com que o preço tenha fixadamente 2 casas decimais.
+                        console.log("FORMA DE PAGAMENTO: ".concat(pedido.formaPagamento));
+                        console.log("\nPedido realizado com sucesso!");
+                        console.log("\nNota fiscal em TXT salva em: ".concat(caminhoArquivo));
+                    }
+                    catch (error) {
+                        console.log("\nPedido realizado com sucesso!");
+                        // Verificamos se 'error' é um objeto de Erro antes de usar 'error.message'
+                        if (error instanceof Error) {
+                            console.log("ERRO AO SALVAR ARQUIVO TXT: ".concat(error.message));
+                        }
+                        else {
+                            console.log("ERRO AO SALVAR ARQUIVO TXT: Ocorreu um erro desconhecido.");
+                        }
+                    }
                     return [4 /*yield*/, (0, cli_1.askQuestion)("ENTER para voltar ao menu...")];
                 case 18:
                     _a.sent();
