@@ -1,0 +1,14 @@
+---------------------------------
+        PIZZARIA - NOTA FISCAL
+---------------------------------
+
+NÚMERO DO PEDIDO: 8
+CLIENTE: Ryan
+
+ITENS:
+  - Pizza-Brigadeiro (x1): R$ 49.00
+
+---------------------------------
+TOTAL DO PEDIDO: R$ 49.00
+FORMA DE PAGAMENTO: Pix
+---------------------------------

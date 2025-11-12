@@ -1,0 +1,14 @@
+---------------------------------
+        PIZZARIA - NOTA FISCAL
+---------------------------------
+
+NÚMERO DO PEDIDO: 9
+CLIENTE: Ryan Alves
+
+ITENS:
+  - Cerveja 500ml (x1): R$ 10.00
+
+---------------------------------
+TOTAL DO PEDIDO: R$ 10.00
+FORMA DE PAGAMENTO: Pix
+---------------------------------

@@ -11,5 +11,5 @@
   },
   "include": [
     "src/**/*"
-, "dist/index.js"  ]
+, "dist/index.js", "dist/cliente.js", "dist/pedido.js", "dist/produto.js", "dist/cli.js", "dist/storage.service.js", "dist/models.js"  ]
 }

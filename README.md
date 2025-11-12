@@ -8,6 +8,7 @@ Aplicativo CLI (linha de comando) para gerenciar Clientes, Produtos e Pedidos de
     *Gestão de Clientes:* Cadastra nome e contato, com IDs sequenciais.
     *Gestão de Produtos:* Cadastra nome e preço dos itens do cardápio.
     *Realização de Pedidos:* Associa um pedido a um cliente já cadastrado.
+    *Consulta de relaórios do dia e do mês* Mostra todas as informações de pedidos realizados
 
         Permite adicionar múltiplos produtos e suas respectivas quantidades.
          Calcula o valor total do pedido automaticamente.
@@ -20,14 +21,23 @@ Criação automática de pastas e arquivos de dados na primeira execução.
 📁 Estrutura de Pastas
     A estrutura do projeto foi organizada para separar o código-fonte (src), o código compilado (dist) e os dados (data).
     
-    SistemaPizzaria/
-    ├─ dist/          # Arquivos .js compilados pelo TypeScript
-    ├─ src/           # Código-fonte .ts (ex.: src/index.ts)
-    ├─ data/          # Base de dados gerada em CSV
-    ├─ node_modules/  # Dependências do projeto
-    ├─ package.json   # Configurações do projeto e scripts
-    └─ tsconfig.json  # Configurações do compilador TypeScript
-    
+    ├── data/
+    ├── dist/
+    ├── image/
+    ├── node_modules/
+    ├── notas_fiscais/
+    ├── src/                     
+    │   │   ├── modules/
+    │   │   ├── services/
+    │   │   ├── types/
+    │   │   └── utils/
+    │   ├──index.ts 
+    │
+    ├── .gitignore
+    ├── iniciar_pizzaria.bat
+    ├── package-lock.json
+    ├── package.json
+    └── tsconfig.json
     
     
 
