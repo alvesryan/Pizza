@@ -1,28 +1,36 @@
-// src/modules/pedido.module.ts
+// src/modules/pedido.ts
 import { askQuestion } from "../utils/cli";
-import { clientes, produtos, pedidos } from "../services/storage.service";
-import { Cliente, Produto, Pedido, ItemPedido } from "../types/models";
+// Importamos as funções do banco de dados em vez dos arrays
+import { listarClientes, listarProdutos, criarPedido } from "../services/storage.service";
+import { Cliente, Produto, ItemPedido } from "../types/models";
 import * as fs from "fs";
 import * as path from "path";
 
 //-Pedido
 
 export async function realizarPedido(): Promise<void> {
+  // Buscamos os dados reais do Banco de Dados antes de começar
+  const todosClientes = await listarClientes();
+  const todosProdutos = await listarProdutos();
+
   let itensPedidos: ItemPedido[] = [];
 
-  if (clientes.length === 0 || produtos.length === 0) {
+  // Verifica se as listas do banco estão vazias
+  if (todosClientes.length === 0 || todosProdutos.length === 0) {
     console.log(
-      "ERRO: É necessário ter ao menos um cliente e um produto cadastrado!"
+      "ERRO: É necessário ter ao menos um cliente e um produto cadastrado no banco!"
     );
     await askQuestion("ENTER para continuar...");
     return;
   }
   console.log("------------------- NOVO PEDIDO --------------------");
-  if (clientes.length === 0) {
+  
+  if (todosClientes.length === 0) {
     console.log("Não há clientes cadastrados até o momento!");
   } else {
-    for (let i = 0; i < clientes.length; i++) {
-      const clienteBuscado = clientes[i];
+    // Percorremos a lista que veio do banco
+    for (let i = 0; i < todosClientes.length; i++) {
+      const clienteBuscado = todosClientes[i];
       console.log(
         `Id: ${clienteBuscado.id} | Nome: ${clienteBuscado.nome} | Contato: ${clienteBuscado.contato}`
       );
@@ -33,10 +41,10 @@ export async function realizarPedido(): Promise<void> {
 
   let clienteEncontrado: Cliente | undefined = undefined; // Crio uma "caixa" vazia para o cliente // o for abaixo percorre a lista "clientes" de uma ponta a outra, ou até encontar o valor do id do cliente solicitado
 
-  for (let i = 0; i < clientes.length; i++) {
+  for (let i = 0; i < todosClientes.length; i++) {
     // se o Id do cliente solicitado for encontrado ele será colocado na variável
-    if (clientes[i].id === idCliente) {
-      clienteEncontrado = clientes[i];
+    if (todosClientes[i].id === idCliente) {
+      clienteEncontrado = todosClientes[i];
       break; // o loop para pois o valor ja foi encontrado
     }
   }
@@ -44,16 +52,19 @@ export async function realizarPedido(): Promise<void> {
     // caso o cliente não exista, o console abaixo aparecera.
     console.log("Cliente com este ID não foi encontrado!");
     await askQuestion("ENTER para continuar...");
-    return; //  aqui é a função é parada
+    return; //  aqui é a função é parada
   } // varivel feita para controlar a duração do looping, enquanto seu valor for true, o looping será executado
+  
   let adicionandoItens = true;
   while (adicionandoItens) {
     // enquanto "adicionarItens" for true , todo o bloco será executado.
     console.clear();
     console.log(`CLIENTE: ${clienteEncontrado.nome}`); // clienteEncontrado.nome = o nome do cliente encontrado no laço for logo acima, que está dentro da lista "Cliente", será mostrado na tela.
-    for (let i = 0; i < produtos.length; i++) {
+    
+    // Percorre a lista de produtos do banco
+    for (let i = 0; i < todosProdutos.length; i++) {
       // A cada volta do loop, eu pego o produto que está na posição 'i'
-      const produtoDisponivel = produtos[i]; // E mostro as informações desse produto específico
+      const produtoDisponivel = todosProdutos[i]; // E mostro as informações desse produto específico
       console.log(
         `${produtoDisponivel.id} - ${
           produtoDisponivel.nome
@@ -65,11 +76,11 @@ export async function realizarPedido(): Promise<void> {
 
     let produtoEncontrado: Produto | undefined = undefined; // mais uma vez com a criação de uma variável vazia.
 
-    for (let i = 0; i < produtos.length; i++) {
+    for (let i = 0; i < todosProdutos.length; i++) {
       //aqui o .lenth percorre toda a lista em busca do Id digitado.
-      if (produtos[i].id === idProduto) {
+      if (todosProdutos[i].id === idProduto) {
         // quando esse Id é encontrado, ele é adicionadoo na variável produtoEncontrado.
-        produtoEncontrado = produtos[i];
+        produtoEncontrado = todosProdutos[i];
         break;
       }
     }
@@ -143,33 +154,36 @@ export async function realizarPedido(): Promise<void> {
     }
   }
   
-  // Lógica de ID melhorada
-  let novoPedidoId = 1;
-  if (pedidos.length > 0) {
-    novoPedidoId = pedidos[pedidos.length - 1].id + 1;
-  }
+  // Lógica de ID Removida: O Banco de Dados gera o ID automaticamente agora.
 
-  const pedido: Pedido = {
-    id: novoPedidoId, // o pedido ganha um novo ID
-    cliente: clienteEncontrado, // nome do cliente que fez o pedido
-    itens: itensPedidos, // todos os itens do pedido
-    total: totalDoPedido, // e o valor total
-    formaPagamento: metodoPagamento, // e a forma de pagamento
-    dataCriacao: new Date(), // e a data de criação do pedido
-  };
-  pedidos.push(pedido); // como nos outros .push, a variável pedido, leva seu valor para o array Pedido[]
-  //Nota Fiscal.
+  // Precisamos formatar os itens para o formato que o banco espera (apenas ID e quantidade)
+  const itensParaBanco = itensPedidos.map(item => ({
+    produtoId: item.produto.id,
+    quantidade: item.quantidade
+  }));
+
+  // SALVANDO NO BANCO DE DADOS
+  // Aqui chamamos a função do storage.service que criamos antes
+  const pedidoSalvo = await criarPedido(
+      clienteEncontrado.id, 
+      itensParaBanco, 
+      totalDoPedido, 
+      metodoPagamento
+  );
+
+  // Nota Fiscal.
 // --- 1. Monta o conteúdo da Nota Fiscal ---
+// Usamos 'pedidoSalvo' que retornou do banco, pois ele tem o ID oficial gerado
   const conteudoNota = `
 ---------------------------------
         PIZZARIA - NOTA FISCAL
 ---------------------------------
 
-NÚMERO DO PEDIDO: ${pedido.id}
-CLIENTE: ${pedido.cliente.nome}
+NÚMERO DO PEDIDO: ${pedidoSalvo.id}
+CLIENTE: ${pedidoSalvo.cliente.nome}
 
 ITENS:
-${pedido.itens
+${itensPedidos // Aqui uso 'itensPedidos' pq já tenho os nomes carregados na memória
   .map(
     (item) =>
       `  - ${item.produto.nome} (x${item.quantidade}): R$ ${(
@@ -179,8 +193,8 @@ ${pedido.itens
   .join("\n")}
 
 ---------------------------------
-TOTAL DO PEDIDO: R$ ${pedido.total.toFixed(2)}
-FORMA DE PAGAMENTO: ${pedido.formaPagamento}
+TOTAL DO PEDIDO: R$ ${pedidoSalvo.total.toFixed(2)}
+FORMA DE PAGAMENTO: ${pedidoSalvo.formaPagamento}
 ---------------------------------
   `;
 
@@ -193,7 +207,7 @@ FORMA DE PAGAMENTO: ${pedido.formaPagamento}
   }
 
   // --- 3. Define o nome do arquivo e salva ---
-  const nomeArquivo = `pedido_${pedido.id}.txt`;
+  const nomeArquivo = `pedido_${pedidoSalvo.id}.txt`;
   const caminhoArquivo = path.join(NOTAS_DIR, nomeArquivo);
 
   try {
@@ -202,9 +216,9 @@ FORMA DE PAGAMENTO: ${pedido.formaPagamento}
 
     // --- 4. Exibe a nota no console (como antes) e informa sobre o .txt ---
     console.log("---------------------------------");
-    console.log(`NÚMERO DO PEDIDO: ${pedido.id}`);
-    console.log(`TOTAL DO PEDIDO: R$ ${pedido.total.toFixed(2)}`); //toFixed(2) faz com que o preço tenha fixadamente 2 casas decimais.
-    console.log(`FORMA DE PAGAMENTO: ${pedido.formaPagamento}`);
+    console.log(`NÚMERO DO PEDIDO: ${pedidoSalvo.id}`);
+    console.log(`TOTAL DO PEDIDO: R$ ${pedidoSalvo.total.toFixed(2)}`); //toFixed(2) faz com que o preço tenha fixadamente 2 casas decimais.
+    console.log(`FORMA DE PAGAMENTO: ${pedidoSalvo.formaPagamento}`);
     console.log("\nPedido realizado com sucesso!");
     console.log(`\nNota fiscal em TXT salva em: ${caminhoArquivo}`);
   

@@ -39,14 +39,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Importa a lógica de CLI
-var cli_1 = require("./utils/cli");
+var cli_1 = require("../src/utils/cli");
 // Importa a lógica de armazenamento
-var storage_service_1 = require("./services/storage.service");
+var storage_service_1 = require("../src/services/storage.service");
 // Importa os módulos de cada entidade
-var cliente_1 = require("./modules/cliente");
-var produto_1 = require("./modules/produto");
-var pedido_1 = require("./modules/pedido");
-var relatorios_1 = require("./modules/relatorios");
+var cliente_1 = require("../src/modules/cliente");
+var produto_1 = require("../src/modules/produto");
+var pedido_1 = require("../src/modules/pedido");
+var relatorios_1 = require("../src/modules/relatorios");
 //-MENU PRINCIPAL-
 function menu() {
     return __awaiter(this, void 0, void 0, function () {

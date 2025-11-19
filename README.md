@@ -1,156 +1,129 @@
-🍕 Sistema de Gestão para Pizzaria (TypeScript + Node.js)
-Aplicativo CLI (linha de comando) para gerenciar Clientes, Produtos e Pedidos de uma pizzaria. Todos os dados são persistidos em arquivos CSV, tornando-o um ótimo projeto para praticar lógica de programação, manipulação de arquivos e a organização de um projeto com TypeScript.
+# 🍕 Sistema de Gestão para Pizzaria (TypeScript + Node.js + PostgreSQL)
 
+Aplicativo CLI (linha de comando) para gerenciar Clientes, Produtos e Pedidos de uma pizzaria. 
 
+Este projeto foi migrado de um sistema de arquivos simples (CSV) para uma arquitetura robusta utilizando **Banco de Dados Relacional (PostgreSQL)** rodando em **Docker**, gerenciado pelo **Prisma ORM**. É um excelente exemplo de modernização de legado e integração de Backend com Banco de Dados.
 
+## ✨ Recursos
 
-✨ Recursos
-    *Gestão de Clientes:* Cadastra nome e contato, com IDs sequenciais.
-    *Gestão de Produtos:* Cadastra nome e preço dos itens do cardápio.
-    *Realização de Pedidos:* Associa um pedido a um cliente já cadastrado.
-    *Consulta de relaórios do dia e do mês* Mostra todas as informações de pedidos realizados
+* **Gestão de Clientes:** Cadastra nome e contato, salvando diretamente no banco de dados.
+* **Gestão de Produtos:** Cadastra itens do cardápio com preço.
+* **Realização de Pedidos:** * Vincula clientes e produtos existentes no banco.
+    * Calcula totais automaticamente.
+    * Gera um **ID único** automático para cada pedido.
+* **Persistência Profissional:** Todos os dados são salvos instantaneamente no PostgreSQL. Nada é perdido se o programa fechar.
+* **Notas Fiscais:** Gera automaticamente um arquivo `.txt` na pasta `notas_fiscais/` com os detalhes de cada pedido realizado.
+* **Relatórios:** Consulta em tempo real de vendas do dia e do mês.
 
-        Permite adicionar múltiplos produtos e suas respectivas quantidades.
-         Calcula o valor total do pedido automaticamente.
-        Oferece opções de forma de pagamento.
+## 🛠️ Tecnologias Utilizadas
 
-Persistência de Dados: Todos os registros são salvos em arquivos .csv ao sair e carregados ao iniciar o programa, garantindo que nenhuma informação seja perdida.
+* **Linguagem:** TypeScript / Node.js
+* **Banco de Dados:** PostgreSQL
+* **Infraestrutura:** Docker (Container)
+* **ORM:** Prisma (para modelagem e queries)
+* **Interface:** CLI (Command Line Interface)
 
-Criação automática de pastas e arquivos de dados na primeira execução.
+## 📁 Estrutura de Pastas
 
-📁 Estrutura de Pastas
-    A estrutura do projeto foi organizada para separar o código-fonte (src), o código compilado (dist) e os dados (data).
-    
-    ├── data/
-    ├── dist/
-    ├── image/
-    ├── node_modules/
-    ├── notas_fiscais/
-    ├── src/                     
-    │   │   ├── modules/
-    │   │   ├── services/
-    │   │   ├── types/
-    │   │   └── utils/
-    │   ├──index.ts 
-    │
-    ├── .gitignore
-    ├── iniciar_pizzaria.bat
-    ├── package-lock.json
-    ├── package.json
-    └── tsconfig.json
-    
-    
+```text
+├── dist/                # Código compilado (JS)
+├── node_modules/        # Dependências do projeto
+├── notas_fiscais/       # Arquivos TXT gerados pelos pedidos
+├── prisma/              
+│   └── schema.prisma    # Configuração do Banco e Tabelas
+├── src/                     
+│   ├── modules/         # Lógica de negócio (Cliente, Produto, Pedido)
+│   ├── services/        # Conexão com o Banco (Prisma Client)
+│   ├── types/           # Interfaces e Tipos TypeScript
+│   └── index.ts         # Menu principal e entrada do sistema
+├── .env                 # Variáveis de ambiente (Configuração do Banco)
+├── package.json
+└── tsconfig.json
 
-🗃️ Arquivos CSV Gerados
-    O sistema gera e gerencia quatro arquivos CSV para armazenar os dados de forma relacional.
-    
-    data/clientes.csv → id,nome,contato
-    
-    data/produtos.csv → id,nome,preco
-    
-    data/pedidos.csv → id,cliente_id,total,formaPagamento
-    
-    data/itens_pedido.csv → pedido_id,produto_id,quantidade
+* **Pré-requisitos**
+Node.js v18 ou superior.
 
+Docker e Docker Desktop instalados e rodando.
 
+Git para versionamento.
 
+🚀 Instalação e Configuração
+Siga este passo a passo para rodar o projeto na sua máquina:
 
-🔧 Pré-requisitos
-    Node.js v16+ (recomendado v18 ou v20)
-    
-    Git
-    
-    🚀 Instalação e Configuração
-    Na raiz do projeto (onde está o package.json), siga os passos:
+1. Clone o repositório
+Bash
 
+git clone [https://github.com/alvesryan/Pizza.git](https://github.com/alvesryan/Pizza.git)
+cd Pizza
+2. Instale as dependências
+Bash
 
+npm install
+3. Suba o Banco de Dados (Docker)
+Execute o comando abaixo para criar o container do PostgreSQL:
 
-Clone o repositório:
+Bash
 
-    git clone [https://github.com/alvesryan/Pizza.git](https://github.com/alvesryan/Pizza.git)
-    cd Pizza
+docker run --name meu-postgres -e POSTGRES_PASSWORD=caiogado -e POSTGRES_USER=admin -e POSTGRES_DB=db_pizzaria -p 5432:5432 -d postgres
+Isso vai baixar a imagem do Postgres e rodar na porta 5432.
 
+4. Configure as Variáveis de Ambiente
+Crie um arquivo chamado .env na raiz do projeto e cole a conexão:
 
-Instale as dependências:    
+Snippet de código
 
-    npm install
+DATABASE_URL="postgresql://admin:caiogado@localhost:5432/db_pizzaria?schema=public"
 
+5. Crie as Tabelas (Prisma Migrate)
+Agora vamos pedir para o Prisma criar as tabelas no banco vazio:
 
-Confira os scripts no package.json:
+Bash
 
-    {
-      "scripts": {
-        "build": "tsc",
-        "start": "node dist/index.js"
-      }
-    }
-
-
-
-Confira o tsconfig.json para garantir que o compilador funcione corretamente:
-
-    {
-      "compilerOptions": {
-        "target": "ES2020",
-        "module": "commonjs",
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
-      },
-      "include": [
-        "src/**/*"
-      ]
-    }
-
-
-
+  npx prisma migrate dev --name init
+  Se aparecer "Your database is now in sync", deu tudo certo!
 
 ▶️ Como Executar
-    Você pode rodar o projeto de duas formas:
-    Compilando e executando o JavaScript (modo "produção"):
-    Este é o método padrão. Primeiro, o código TypeScript é compilado, depois o resultado é executado.
-    npm run build && npm run start
-    Modo de desenvolvimento (requer ts-node):
-    Se quiser executar o TypeScript diretamente sem compilar antes (ótimo para testar mudanças rápidas), instale o ts-node:
-    
-    npm install -D ts-node
+Modo Desenvolvimento (Recomendado)
+Para rodar diretamente com TypeScript (sem precisar compilar toda hora):
 
-Adicione o script "dev" ao seu package.json:
-    
-      "scripts": {
-        "build": "tsc",
-        "start": "node dist/index.js",
-        "dev": "ts-node src/index.ts"
-      }
+Bash
 
-Agora, basta rodar:
-    npm run dev
+npm run dev
+Modo Produção
+Para compilar para JavaScript e rodar a versão final:
+
+Bash
+
+npm run build
+npm run start
+🖥️ Uso (Menu Interativo)
+
+**OBS** Se a sua versão do node.js for muito desatualizada em relação ao Prisma, você pode ter complicações pra rodar a aplicação.
 
 
+Ao iniciar, o sistema conecta ao banco e apresenta o menu:
 
+Cadastrar cliente: Insere um novo cliente no banco.
 
-🖥️ Uso (Menu do Console)
-    Ao iniciar, o sistema apresenta um menu interativo:
-    Cadastrar cliente: Pede nome e contato do novo cliente.
-    Buscar clientes: Lista todos os clientes cadastrados com id, nome e contato.
-    Cadastrar produto: Pede nome e preço do novo item do cardápio.
-    Buscar produtos: Lista todos os produtos com id, nome e preço.
-    Realizar um pedido: Inicia o fluxo de criação de um novo pedido, pedindo o ID do cliente e os produtos desejados.
-    Sair: Salva todas as alterações feitas nos arquivos .csv e encerra o programa.
+Listar clientes: Busca todos os registros da tabela Cliente.
 
+Cadastrar produto: Insere um novo item na tabela Produto.
 
+Listar produtos: Mostra o cardápio atualizado.
+
+Realizar um pedido: Cria uma transação que salva o Pedido e os Itens do Pedido no banco.
+
+Ver relatórios: Mostra estatísticas de vendas baseadas nas datas salvas no banco.
+
+Sair: Encerra a aplicação (os dados já estão salvos no PostgreSQL).
 
 📝 Campos e Formatos
-    IDs: number (inteiro), gerado sequencialmente.
-    Preço e Total: number, armazenado como decimal (ex: 59.90).
-    Contato: number.
-    Forma de Pagamento: string (ex: "Pix", "Dinheiro", "Crédito", "Débito").
+IDs: Int (Gerado automaticamente pelo banco - Autoincrement).
 
-*Aqui um exemplo da estrutura das pastas*
-![Estrutura de pastas](./image/arquiteturaPastas.png)
+Preço/Total: Float (Decimal).
 
-*Diagrama do código*
-![Estrutura de pastas](./image/diagrama.png)
+Contato: String (Aceita formatação, ex: "(11) 99999-9999").
+
+Forma de Pagamento: String.
+
+Datas: DateTime (Geradas automaticamente pelo banco no momento do cadastro).

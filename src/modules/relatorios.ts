@@ -1,6 +1,7 @@
 // src/modules/relatorio.module.ts
 import { askQuestion } from "../utils/cli";
-import { pedidos } from "../services/storage.service";
+// Mudança principal: Importamos a função que busca no banco, não mais o array direto
+import { listarPedidos } from "../services/storage.service";
 
 // Função auxiliar para verificar se duas datas são no mesmo dia
 function isMesmoDia(date1: Date, date2: Date): boolean {
@@ -22,10 +23,14 @@ export async function mostrarRelatorios(): Promise<void> {
   console.clear();
   console.log("------- RELATÓRIO DE PEDIDOS -------");
 
+  // --- MUDANÇA AQUI ---
+  // Buscamos a lista atualizada de pedidos direto do Banco de Dados
+  const pedidos = await listarPedidos();
+
   const hoje = new Date();
 
   // 1. Calcular Pedidos do Dia
-  // Filtramos a lista de pedidos, mantendo apenas aqueles cuja data é o mesmo dia que 'hoje'
+  // Filtramos a lista de pedidos (que veio do banco), mantendo apenas aqueles cuja data é o mesmo dia que 'hoje'
   const pedidosDoDia = pedidos.filter((pedido) =>
     isMesmoDia(pedido.dataCriacao, hoje)
   ).length; // .length nos dá o número total

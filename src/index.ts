@@ -1,11 +1,5 @@
-// src/index.ts 
-// Este arquivo importa as funções dos outros arquivos e executa o menu.
-
 // Importa a lógica de CLI
 import { rl, askQuestion } from "./utils/cli";
-
-// Importa a lógica de armazenamento
-import { carregarDados, salvarDados } from "./services/storage.service";
 
 // Importa os módulos de cada entidade
 import {
@@ -28,7 +22,7 @@ async function menu(): Promise<void> {
     // enquando sair NÂO for false, o while é executado
 
     console.clear();
-    console.log("===== PIZZARIA  ====="); // e nesse while, é onde o usuário vai fazer todos os cadastros, as buscas, e pedido dos clientes
+    console.log("===== PIZZARIA (Conectada ao BD) ====="); // e nesse while, é onde o usuário vai fazer todos os cadastros, as buscas, e pedido dos clientes
     console.log("1. Cadastrar cliente"); // basta ele digitar o número que representa o que ele quer fazer dentro do sistema.
     console.log("2. Listar clientes");
     console.log("3. Cadastrar produto");
@@ -62,7 +56,6 @@ async function menu(): Promise<void> {
         await mostrarRelatorios();
         break;
       case "7":
-        salvarDados(); // quando o usuário quiser sair, todos os dados serão salvos.
         console.log("Até logo!!");
         sair = true; // sair vira true e o programa é finalizado.
         break;
@@ -74,8 +67,5 @@ async function menu(): Promise<void> {
   }
   rl.close();
 }
-
-//carrega todos os dados antes de iniciar o programa
-carregarDados();
 // Inicia o programa
 menu();

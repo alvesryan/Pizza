@@ -1,6 +1,7 @@
 // src/modules/cliente.module.ts
 import { askQuestion } from "../utils/cli";
-import { clientes } from "../services/storage.service";
+// Importamos as funções do banco em vez do array 'clientes'
+import { adicionarCliente, listarClientes } from "../services/storage.service";
 import { Cliente } from "../types/models";
 
 //CADASTRO DE CLIENTE
@@ -11,28 +12,22 @@ export async function cadastrodeClientes(): Promise<void> {
 
   const nomeCliente = await askQuestion("Nome do cliente: ");
   const contatoClienteStr = await askQuestion("Número de contato do cliente: ");
-  const contatoCliente = parseInt(contatoClienteStr);
-  let clienteId: number; // variável que irá guardar o Id do cliente.
+  
+  // Nota: Mudei para string para aceitar DDD e traços, e porque o banco espera String.
+  // Se quiser apenas números, pode converter, mas no banco salvamos como texto.
+  const contatoCliente = contatoClienteStr; 
 
-  if (clientes.length > 0) {
-    // se o array Cliente não estiver vazia,
-    // pega o último cliente que foi adicionado, e o Id do novo cliente será o id do ultimo cliente + 1
-    const ultimoCliente = clientes[clientes.length - 1];
-    clienteId = ultimoCliente.id + 1;
-  } else {
-    // se a array estiver vazia, então significa que é o primeiro cliente, então ele terá o primeiro I
-    clienteId = 1;
-  }
+  // A lógica de ID manual (if/else) não é mais necessária!
+  // O Banco de Dados (PostgreSQL) gera o ID automaticamente (autoincrement)
+  
+  // a variável "cadastroCliente" agora vem direto do banco após salvar
+  const clienteSalvo = await adicionarCliente(nomeCliente, contatoCliente);
 
-  const cadastroCliente: Cliente = {
-    // a variável "cadastroCliente" armazena os dados coletados no objeto "Cliente"
-    id: clienteId, //Id do cliente
-    nome: nomeCliente, // seu nome
-    contato: contatoCliente, // e o telefone de contato
-  };
-
-  clientes.push(cadastroCliente); //".push" leva os dados da variável "cadastroCliente" para a lista "clientes"
-  console.log(`\nCliente '${cadastroCliente.nome}' cadastrado com sucesso!`); // e aqui uma confirmação de cadastro, utilando o nome do cliente
+  // ".push" não é mais usado. O "adicionarCliente" já salvou no banco.
+  
+  console.log(`\nCliente '${clienteSalvo.nome}' cadastrado com sucesso!`); // e aqui uma confirmação de cadastro, utilando o nome do cliente
+  console.log(`ID gerado pelo banco: ${clienteSalvo.id}`);
+  
   await askQuestion("ENTER para continuar");
 }
 
@@ -42,15 +37,18 @@ export async function buscarClientes(): Promise<void> {
   console.clear();
   console.log("------ BUSCAR CLIENTES ------");
 
-  if (clientes.length === 0) {
-    // se não houver clientes no array, o console abaixo é executado
+  // Primeiro buscamos a lista atualizada do banco de dados
+  const listaDeClientes = await listarClientes();
+
+  if (listaDeClientes.length === 0) {
+    // se não houver clientes no array (banco), o console abaixo é executado
     console.log("Não há clientes cadastrados até o momento!");
   } else {
     // se houver
 
-    for (let i = 0; i < clientes.length; i++) {
-      // esse loop ira percorrer todo o array(clientes) mostrando os clientes cadastrados.
-      const clienteBuscado = clientes[i]; // a variável "clienteBuscado" ira receber o valor da array "clientes"
+    for (let i = 0; i < listaDeClientes.length; i++) {
+      // esse loop ira percorrer todo o array(listaDeClientes) mostrando os clientes cadastrados.
+      const clienteBuscado = listaDeClientes[i]; // a variável "clienteBuscado" ira receber o valor da array
       console.log(
         `Id: ${clienteBuscado.id} | Nome: ${clienteBuscado.nome} | Contato: ${clienteBuscado.contato}`
       ); // aqui temos a exibição das informaçoes de todos os clientes cadastrados.

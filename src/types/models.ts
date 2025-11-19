@@ -4,7 +4,7 @@ export interface Cliente {
   //Objetp Cliente
   id: number; // esse é o id que vai ser direcionado ao cliente.
   nome: string; //  essa variavel vai armazenar os nomes dos clientes.
-  contato: number; // e essa registrar seu número de contato.
+  contato: string; // e essa registrar seu número de contato.
 }
 export interface Produto {
   //Objeto Produto
