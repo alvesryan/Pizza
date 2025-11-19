@@ -1,5 +1,4 @@
-// src/database.ts
 import { PrismaClient } from '@prisma/client'
 
-// Cria a conexão com o banco
+// Essa é a chave que liga o código ao Docker
 export const prisma = new PrismaClient()
