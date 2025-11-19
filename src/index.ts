@@ -1,71 +1,82 @@
-// Importa a lógica de CLI
-import { rl, askQuestion } from "./utils/cli";
+import express from 'express';
+import cors from 'cors';
+import { 
+    listarClientes, adicionarCliente, 
+    listarProdutos, adicionarProduto, 
+    listarPedidos, criarPedido 
+} from './services/storage.service';
 
-// Importa os módulos de cada entidade
-import {
-  cadastrodeClientes,
-  buscarClientes,
-} from "./modules/cliente";
-import {
-  cadastrodeProduto,
-  buscarProdutos,
-} from "./modules/produto";
-import { realizarPedido } from "./modules/pedido";
-import { mostrarRelatorios } from "./modules/relatorios";
 
-//-MENU PRINCIPAL-
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.use(express.static('public'));  
 
-async function menu(): Promise<void> {
-  let sair = false;
 
-  while (!sair) {
-    // enquando sair NÂO for false, o while é executado
-
-    console.clear();
-    console.log("===== PIZZARIA (Conectada ao BD) ====="); // e nesse while, é onde o usuário vai fazer todos os cadastros, as buscas, e pedido dos clientes
-    console.log("1. Cadastrar cliente"); // basta ele digitar o número que representa o que ele quer fazer dentro do sistema.
-    console.log("2. Listar clientes");
-    console.log("3. Cadastrar produto");
-    console.log("4. Listar produtos");
-    console.log("5. Realizar um pedido");
-    console.log("6. Ver relatórios");
-    console.log("7. Sair");
-    console.log("======================================");
-
-    const escolha = await askQuestion(
-      "Digite o número referente ao seu desejo: "
-    );
-
-    switch (escolha) {
-      case "1":
-        await cadastrodeClientes();
-        break; // quando o valor digitado no prompt acima pertencer a algum case, o respectivo case...
-      case "2":
-        await buscarClientes(); // chamará a função que está linkada nele
-        break;
-      case "3":
-        await cadastrodeProduto();
-        break;
-      case "4":
-        await buscarProdutos();
-        break;
-      case "5":
-        await realizarPedido();
-        break;
-      case "6":
-        await mostrarRelatorios();
-        break;
-      case "7":
-        console.log("Até logo!!");
-        sair = true; // sair vira true e o programa é finalizado.
-        break;
-      default: // caso o usuário não digite nenhum valor existente no case, a mensagem abaixo é executada.
-        console.log("Opção inválida!");
-        await askQuestion("Pressione Enter para continuar...");
-        break;
+// --- ROTA DE LOGIN (Admin) ---
+app.post('/login', (req, res) => {
+    const { usuario, senha } = req.body;
+    // Em produção, isso viria do banco de dados
+    if (usuario === "admin" && senha === "123456") {
+        res.json({ sucesso: true });
+    } else {
+        res.status(401).json({ sucesso: false });
     }
-  }
-  rl.close();
-}
-// Inicia o programa
-menu();
+});
+
+// --- ROTAS DE CLIENTES ---
+app.get('/clientes', async (req, res) => {
+    const lista = await listarClientes();
+    res.json(lista);
+});
+
+app.post('/clientes', async (req, res) => {
+    const { nome, contato } = req.body;
+    const novo = await adicionarCliente(nome, contato);
+    res.json(novo);
+});
+
+// --- ROTAS DE PRODUTOS ---
+app.get('/produtos', async (req, res) => {
+    const lista = await listarProdutos();
+    res.json(lista);
+});
+
+app.post('/produtos', async (req, res) => {
+    const { nome, preco } = req.body;
+    const novo = await adicionarProduto(nome, parseFloat(preco));
+    res.json(novo);
+});
+
+// --- ROTAS DE PEDIDOS ---
+app.get('/pedidos', async (req, res) => {
+    const lista = await listarPedidos();
+    res.json(lista);
+});
+
+app.post('/pedidos', async (req, res) => {
+    try {
+        const { clienteId, itens, total, formaPagamento } = req.body;
+        const novo = await criarPedido(
+            parseInt(clienteId), 
+            itens, 
+            parseFloat(total), 
+            formaPagamento
+        );
+        res.json(novo);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao criar pedido" });
+    }
+});
+
+// Inicia o servidor
+app.listen(3000, () => {
+    console.clear();
+    console.log("=================================================");
+    console.log(" PIZZARIA RODANDO!");
+    console.log(" API: http://localhost:3000");
+    console.log(" Admin: Abra o arquivo index.html");
+    console.log(" Totem: Abra o arquivo cliente.html");
+    console.log("=================================================");
+});
