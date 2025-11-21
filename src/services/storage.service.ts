@@ -1,4 +1,3 @@
-// src/services/storage.service.ts
 import { prisma } from "../database";
 
 // --- CLIENTES ---

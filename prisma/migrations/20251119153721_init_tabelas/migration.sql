@@ -16,7 +16,7 @@ CREATE TABLE "Produto" (
     CONSTRAINT "Produto_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+-- CreateTable2
 CREATE TABLE "Pedido" (
     "id" SERIAL NOT NULL,
     "dataCriacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
