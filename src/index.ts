@@ -61,7 +61,7 @@ app.get('/clientes', async (req, res) => {
 app.post('/clientes', async (req, res) => {
     const { nome, contato } = req.body; // Pega os dados enviados pelo formulário
     const novo = await adicionarCliente(nome, contato); // Manda gravar no banco
-    res.json(novo); // Devolve o cliente criado (útil para confirmar o ID gerado)
+    res.json(novo); // Devolve o cliente criado
 });
 
 // --- ROTAS DE PRODUTOS ---
